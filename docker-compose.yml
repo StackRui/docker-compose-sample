@@ -1,0 +1,175 @@
+version: '3'
+
+services:
+  redis-insight:
+    image: redislabs/redisinsight:1.14.0
+    container_name: redis-insight
+    volumes:
+      - "$PWD/redis-insight:/db"
+    ports:
+      - 8001:8001
+
+  ignite:
+    image: apacheignite/ignite:2.14.0
+    environment:
+      - IGNITE_QUIET=false
+    container_name: ignite
+    volumes:
+      - "$PWD/apacheignite/libs:/opt/ignite/apache-ignite/libs/user_libs"
+    ports:
+      - 11211:11211
+      - 47100:47100
+      - 47500:47500
+      - 49112:49112
+      - 10800:10800
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 10
+        window: 180s
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - $PWD/mysql5.7/conf:/etc/mysql/conf.d
+      - $PWD/mysql5.7/logs:/logs
+      - $PWD/mysql5.7/data:/var/lib/mysql
+    container_name: mysql
+    ports:
+      - "3306:3306"
+
+  mysql3406:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - $PWD/mysql5.7/3406/conf:/etc/mysql/conf.d
+      - $PWD/mysql5.7/3406/logs:/logs
+      - $PWD/mysql5.7/3406/data:/var/lib/mysql
+    container_name: mysql3406
+    ports:
+      - "3406:3306"
+
+  mysql3506:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - $PWD/mysql5.7/3506/conf:/etc/mysql/conf.d
+      - $PWD/mysql5.7/3506/logs:/logs
+      - $PWD/mysql5.7/3506/data:/var/lib/mysql
+    container_name: mysql3506
+    ports:
+      - "3506:3306"
+
+
+  redis:
+    image: docker.io/redis:5.0
+    container_name: redis
+    restart: always
+    command: ["redis-server" ,"--appendonly" ,"yes"]
+    ports:
+     - "6379:6379"
+    volumes:
+     - $PWD/redis/data:/data
+
+  rabbitmq:
+    image: rabbitmq:3.7.11-management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+      - 4369:4369
+      - 25672:25672
+    restart: always
+    command: |
+      bash -c '
+      rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+      rabbitmq-server &
+      sleep 10
+      rabbitmqctl add_user admin admin
+      rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
+      rabbitmqctl set_user_tags admin administrator
+      wait'
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_PLUGINS="rabbitmq_delayed_message_exchange"
+      - RABBITMQ_DELAYED_MESSAGE_EXCHANGE_VERSION="3.8.0"
+    volumes:
+      - $PWD/rabbitmq/data:/var/lib/rabbitmq
+      - $PWD/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.8.0.ez:/opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.8.0.ez
+
+
+  zookeeper:
+    image: zookeeper:3.8.0
+    container_name: zookeeper
+    hostname: zoo
+    volumes:
+      - $PWD/zookeeper/zoo1/data:/data
+    ports:
+      - 2181:2181
+
+  kafka1:
+    image: wurstmeister/kafka:2.12-2.2.0
+    restart: always
+    container_name: kafka1
+    hostname: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka1
+      KAFKA_ZOOKEEPER_CONNECT: zoo:2181
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${IP}:9092
+      KAFKA_BROKER_ID: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $PWD/kafka/kafka1:/kafka
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    hostname: minio
+    ports:
+      - "8000:9000"
+      - "4730:4730"
+    environment:
+      MINIO_ACCESS_KEY: "linkflow"
+      MINIO_SECRET_KEY: "linkflow"
+    volumes:
+      - $PWD/minio/data:/data
+    command: server /data --console-address ":4730"
+    restart: always
+
+
+  nacos1:
+    hostname: nacos1
+    container_name: nacos1
+    image: nacos/nacos-server:1.4.1
+    volumes:
+      - $PWD/nacos/nacos1:/home/nacos/logs
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+      - "9555:9555"
+    depends_on:
+      - mysql
+    environment:
+      - MODE=standalone
+      - TZ=Asia/Shanghai
+      - LANG=en_US.UTF-8
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql
+      - MYSQL_SERVICE_DB_NAME=nacos_config
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=root
+    restart: always
