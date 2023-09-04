@@ -160,6 +160,24 @@ services:
     depends_on:
       - rmqnamesrv
 
+  rmqbroker-slave:
+    image: foxiswho/rocketmq:broker
+    container_name: rmqbroker-slave
+    ports:
+      - 11909:10909
+      - 11911:10911
+    volumes:
+      - $PWD/rocketmq/broker/data/rmqbroker-slave/logs:/opt/logs
+      - $PWD/rocketmq/broker/data/rmqbroker-slave/store:/opt/store
+      - $PWD/rocketmq/broker/data/rmqbroker-slave/brokerconf/broker.conf:/etc/rocketmq/conf/broker.conf
+    environment:
+        NAMESRV_ADDR: "rmqnamesrv:9876"
+        JAVA_OPTS: " -Duser.home=/opt"
+        JAVA_OPT_EXT: "-server -Xms128m -Xmx128m -Xmn64m"
+    command: mqbroker -c /etc/rocketmq/conf/broker.conf
+    depends_on:
+      - rmqbroker
+
   rmqconsole:
     image: apacherocketmq/rocketmq-dashboard:latest
     container_name: rmqconsole
