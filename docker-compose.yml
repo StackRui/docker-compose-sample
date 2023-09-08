@@ -139,8 +139,7 @@ services:
     ports:
       - 9876:9876
     volumes:
-      - $PWD/rocketmq/server/data/logs:/opt/logs
-      - $PWD/rocketmq/server/data/store:/opt/store
+      - $PWD/rocketmq/server/data/logs:/home/rocketmq/logs
 
   rmqbroker:
     image: foxiswho/rocketmq:broker
@@ -149,13 +148,13 @@ services:
       - 10909:10909
       - 10911:10911
     volumes:
-      - $PWD/rocketmq/broker/data/logs:/opt/logs
-      - $PWD/rocketmq/broker/data/store:/opt/store
+      - $PWD/rocketmq/broker/data/logs:/home/rocketmq/logs
+      - $PWD/rocketmq/broker/data/store:/home/rocketmq/store
       - $PWD/rocketmq/broker/data/brokerconf/broker.conf:/etc/rocketmq/conf/broker.conf
     environment:
-        NAMESRV_ADDR: "rmqnamesrv:9876"
-        JAVA_OPTS: " -Duser.home=/opt"
-        JAVA_OPT_EXT: "-server -Xms128m -Xmx128m -Xmn64m"
+      NAMESRV_ADDR: "rmqnamesrv:9876"
+      JAVA_OPTS: " -Duser.home=/opt"
+      JAVA_OPT_EXT: "-server -Xms128m -Xmx128m -Xmn64m"
     command: mqbroker -c /etc/rocketmq/conf/broker.conf
     depends_on:
       - rmqnamesrv
