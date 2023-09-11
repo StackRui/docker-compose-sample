@@ -148,9 +148,9 @@ services:
       - 10909:10909
       - 10911:10911
     volumes:
-      - $PWD/rocketmq/broker/data/logs:/home/rocketmq/logs
-      - $PWD/rocketmq/broker/data/store:/home/rocketmq/store
-      - $PWD/rocketmq/broker/data/brokerconf/broker.conf:/etc/rocketmq/conf/broker.conf
+      - $PWD/rocketmq/broker-a/0/data/logs:/home/rocketmq/logs
+      - $PWD/rocketmq/broker-a/0/data/store:/home/rocketmq/store
+      - $PWD/rocketmq/broker-a/0/conf/broker.conf:/etc/rocketmq/conf/broker.conf
     environment:
       NAMESRV_ADDR: "rmqnamesrv:9876"
       JAVA_OPTS: " -Duser.home=/opt"
@@ -166,9 +166,9 @@ services:
       - 11909:10909
       - 11911:10911
     volumes:
-      - $PWD/rocketmq/broker/data/rmqbroker-slave/logs:/opt/logs
-      - $PWD/rocketmq/broker/data/rmqbroker-slave/store:/opt/store
-      - $PWD/rocketmq/broker/data/rmqbroker-slave/brokerconf/broker.conf:/etc/rocketmq/conf/broker.conf
+      - $PWD/rocketmq/broker-a/1/data/logs:/home/rocketmq/logs
+      - $PWD/rocketmq/broker-a/1/data/store:/home/rocketmq/store
+      - $PWD/rocketmq/broker-a/1/conf/broker.conf:/etc/rocketmq/conf/broker.conf
     environment:
         NAMESRV_ADDR: "rmqnamesrv:9876"
         JAVA_OPTS: " -Duser.home=/opt"
