@@ -133,6 +133,42 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - $PWD/kafka/kafka1:/kafka
 
+  kafka2:
+    image: wurstmeister/kafka:2.12-2.2.0
+    restart: always
+    container_name: kafka2
+    hostname: kafka2
+    depends_on:
+      - zookeeper
+    ports:
+      - 9093:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka2
+      KAFKA_ZOOKEEPER_CONNECT: zoo:2181
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${IP}:9092
+      KAFKA_BROKER_ID: 2
+    volumes:
+      - $PWD/kafka/kafka2:/kafka
+
+  kafka3:
+    image: wurstmeister/kafka:2.12-2.2.0
+    restart: always
+    container_name: kafka3
+    hostname: kafka3
+    depends_on:
+      - zookeeper
+    ports:
+      - 9094:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka3
+      KAFKA_ZOOKEEPER_CONNECT: zoo:2181
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${IP}:9092
+      KAFKA_BROKER_ID: 3
+    volumes:
+      - $PWD/kafka/kafka3:/kafka
+
   rmqnamesrv:
     image: foxiswho/rocketmq:server
     container_name: rmqnamesrv
