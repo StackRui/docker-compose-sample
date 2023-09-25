@@ -70,12 +70,71 @@ services:
   redis:
     image: docker.io/redis:5.0
     container_name: redis
+    hostname: redis
     restart: always
-    command: ["redis-server" ,"--appendonly" ,"yes"]
+    command: [ "redis-server" ,"--appendonly" ,"yes"]
     ports:
-     - "6379:6379"
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=""
     volumes:
-     - $PWD/redis/data:/data
+      - $PWD/redis/master/data:/data
+      #- $PWD/redis/master/conf/redis.conf:/data/redis.conf
+
+  redis-slave1:
+    image: docker.io/redis:5.0
+    container_name: redis-slave1
+    hostname: redis-slave1
+    restart: always
+    command: [ "redis-server" ,"--appendonly" ,"yes" ,"--slaveof", "redis", "6379"]
+    ports:
+      - "6479:6379"
+    environment:
+      - REDIS_MASTER_HOST=redis
+      - REDIS_MASTER_PASSWORD=""
+      - REDIS_PASSWORD=""
+    volumes:
+      - $PWD/redis/slave1/data:/data
+      #- $PWD/redis/slave1/conf/redis.conf:/data/redis.conf
+
+  redis-sentinel1:
+    image: docker.io/redis:5.0
+    hostname: redis-sentinel1
+    container_name: redis-sentinel1
+    command: [ "redis-sentinel" ,"/etc/redis/sentinel.conf" ]
+    volumes:
+      - $PWD/sentinel/sentinel1/sentinel.conf:/etc/redis/sentinel.conf
+    depends_on:
+      - redis
+      - redis-slave1
+    ports:
+      - '26379:26379'
+
+  redis-sentinel2:
+    image: docker.io/redis:5.0
+    hostname: redis-sentinel2
+    container_name: redis-sentinel2
+    command: [ "redis-sentinel" ,"/etc/redis/sentinel.conf" ]
+    volumes:
+      - $PWD/sentinel/sentinel2/sentinel.conf:/etc/redis/sentinel.conf
+    depends_on:
+      - redis
+      - redis-slave1
+    ports:
+      - '26380:26379'
+
+  redis-sentinel3:
+    image: docker.io/redis:5.0
+    hostname: redis-sentinel3
+    container_name: redis-sentinel3
+    command: [ "redis-sentinel" ,"/etc/redis/sentinel.conf" ]
+    volumes:
+      - $PWD/sentinel/sentinel3/sentinel.conf:/etc/redis/sentinel.conf
+    depends_on:
+      - redis
+      - redis-slave1
+    ports:
+      - '26381:26379'
 
   rabbitmq:
     image: rabbitmq:3.7.11-management
