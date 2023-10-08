@@ -71,14 +71,15 @@ services:
     container_name: redis-master1
     hostname: redis-master1
     restart: always
-    command: [ "redis-server" ,"--appendonly" ,"yes"]
+    command: [ "redis-server" ,"--appendonly" ,"yes" ,"--loadmodule" ,"/etc/libredis_cell.so" ]
     ports:
       - "6379:6379"
     environment:
       - REDIS_PASSWORD=""
     volumes:
       - $PWD/redis/master1/data:/data
-      #- $PWD/redis/master/conf/redis.conf:/data/redis.conf
+      - $PWD/redis/libredis_cell.so:/etc/libredis_cell.so
+      - $PWD/redis/libredis_cell.d:/etc/libredis_cell.d
 
   redis-slave1:
     image: docker.io/redis:5.0
