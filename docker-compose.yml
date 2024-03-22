@@ -5,7 +5,7 @@ services:
     image: redislabs/redisinsight:1.14.0
     container_name: redis-insight
     volumes:
-      - "$PWD/redis-insight:/db"
+      - "./redis-insight:/db"
     ports:
       - 8001:8001
 
@@ -15,7 +15,7 @@ services:
       - IGNITE_QUIET=false
     container_name: ignite
     volumes:
-      - "$PWD/apacheignite/libs:/opt/ignite/apache-ignite/libs/user_libs"
+      - "./apacheignite/libs:/opt/ignite/apache-ignite/libs/user_libs"
     ports:
       - 11211:11211
       - 47100:47100
@@ -35,9 +35,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
-      - $PWD/mysql5.7/conf:/etc/mysql/conf.d
-      - $PWD/mysql5.7/logs:/logs
-      - $PWD/mysql5.7/data:/var/lib/mysql
+      - ./mysql5.7/conf:/etc/mysql/conf.d
+      - ./mysql5.7/logs:/logs
+      - ./mysql5.7/data:/var/lib/mysql
     container_name: mysql
     ports:
       - "3306:3306"
@@ -47,9 +47,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
-      - $PWD/mysql5.7/3406/conf:/etc/mysql/conf.d
-      - $PWD/mysql5.7/3406/logs:/logs
-      - $PWD/mysql5.7/3406/data:/var/lib/mysql
+      - ./mysql5.7/3406/conf:/etc/mysql/conf.d
+      - ./mysql5.7/3406/logs:/logs
+      - ./mysql5.7/3406/data:/var/lib/mysql
     container_name: mysql3406
     ports:
       - "3406:3306"
@@ -59,9 +59,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
-      - $PWD/mysql5.7/3506/conf:/etc/mysql/conf.d
-      - $PWD/mysql5.7/3506/logs:/logs
-      - $PWD/mysql5.7/3506/data:/var/lib/mysql
+      - ./mysql5.7/3506/conf:/etc/mysql/conf.d
+      - ./mysql5.7/3506/logs:/logs
+      - ./mysql5.7/3506/data:/var/lib/mysql
     container_name: mysql3506
     ports:
       - "3506:3306"
@@ -77,9 +77,9 @@ services:
     environment:
       - REDIS_PASSWORD=""
     volumes:
-      - $PWD/redis/master1/data:/data
-      - $PWD/redis/libredis_cell.so:/etc/libredis_cell.so
-      - $PWD/redis/libredis_cell.d:/etc/libredis_cell.d
+      - ./redis/master1/data:/data
+      - ./redis/libredis_cell.so:/etc/libredis_cell.so
+      - ./redis/libredis_cell.d:/etc/libredis_cell.d
 
   redis-slave1:
     image: docker.io/redis:5.0
@@ -94,7 +94,7 @@ services:
       - REDIS_MASTER_PASSWORD=""
       - REDIS_PASSWORD=""
     volumes:
-      - $PWD/redis/slave1/data:/data
+      - ./redis/slave1/data:/data
 
   redis-sentinel1:
     image: docker.io/redis:5.0
@@ -102,7 +102,7 @@ services:
     container_name: redis-sentinel1
     command: [ "redis-sentinel" ,"/etc/redis/sentinel.conf" ]
     volumes:
-      - $PWD/sentinel/sentinel1/sentinel.conf:/etc/redis/sentinel.conf
+      - ./sentinel/sentinel1/sentinel.conf:/etc/redis/sentinel.conf
     depends_on:
       - redis-master1
       - redis-slave1
@@ -115,7 +115,7 @@ services:
     container_name: redis-sentinel2
     command: [ "redis-sentinel" ,"/etc/redis/sentinel.conf" ]
     volumes:
-      - $PWD/sentinel/sentinel2/sentinel.conf:/etc/redis/sentinel.conf
+      - ./sentinel/sentinel2/sentinel.conf:/etc/redis/sentinel.conf
     depends_on:
       - redis-master1
       - redis-slave1
@@ -128,7 +128,7 @@ services:
     container_name: redis-sentinel3
     command: [ "redis-sentinel" ,"/etc/redis/sentinel.conf" ]
     volumes:
-      - $PWD/sentinel/sentinel3/sentinel.conf:/etc/redis/sentinel.conf
+      - ./sentinel/sentinel3/sentinel.conf:/etc/redis/sentinel.conf
     depends_on:
       - redis-master1
       - redis-slave1
@@ -159,8 +159,8 @@ services:
       - RABBITMQ_PLUGINS="rabbitmq_delayed_message_exchange"
       - RABBITMQ_DELAYED_MESSAGE_EXCHANGE_VERSION="3.8.0"
     volumes:
-      - $PWD/rabbitmq/data:/var/lib/rabbitmq
-      - $PWD/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.8.0.ez:/opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.8.0.ez
+      - ./rabbitmq/data:/var/lib/rabbitmq
+      - ./rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.8.0.ez:/opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-3.8.0.ez
 
 
   zookeeper:
@@ -168,7 +168,7 @@ services:
     container_name: zookeeper
     hostname: zoo
     volumes:
-      - $PWD/zookeeper/zoo1/data:/data
+      - ./zookeeper/zoo1/data:/data
     ports:
       - 2181:2181
 
@@ -189,7 +189,7 @@ services:
       KAFKA_BROKER_ID: 1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - $PWD/kafka/kafka1:/kafka
+      - ./kafka/kafka1:/kafka
 
   kafka2:
     image: wurstmeister/kafka:2.12-2.2.0
@@ -207,7 +207,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${IP}:9092
       KAFKA_BROKER_ID: 2
     volumes:
-      - $PWD/kafka/kafka2:/kafka
+      - ./kafka/kafka2:/kafka
 
   kafka3:
     image: wurstmeister/kafka:2.12-2.2.0
@@ -225,7 +225,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${IP}:9092
       KAFKA_BROKER_ID: 3
     volumes:
-      - $PWD/kafka/kafka3:/kafka
+      - ./kafka/kafka3:/kafka
 
   rmqnamesrv:
     image: foxiswho/rocketmq:server
@@ -233,7 +233,7 @@ services:
     ports:
       - 9876:9876
     volumes:
-      - $PWD/rocketmq/server/data/logs:/home/rocketmq/logs
+      - ./rocketmq/server/data/logs:/home/rocketmq/logs
 
   rmqbroker:
     image: foxiswho/rocketmq:broker
@@ -242,9 +242,9 @@ services:
       - 10909:10909
       - 10911:10911
     volumes:
-      - $PWD/rocketmq/broker-a/0/data/logs:/home/rocketmq/logs
-      - $PWD/rocketmq/broker-a/0/data/store:/home/rocketmq/store
-      - $PWD/rocketmq/broker-a/0/conf/broker.conf:/etc/rocketmq/conf/broker.conf
+      - ./rocketmq/broker-a/0/data/logs:/home/rocketmq/logs
+      - ./rocketmq/broker-a/0/data/store:/home/rocketmq/store
+      - ./rocketmq/broker-a/0/conf/broker.conf:/etc/rocketmq/conf/broker.conf
     environment:
       NAMESRV_ADDR: "rmqnamesrv:9876"
       JAVA_OPTS: " -Duser.home=/opt"
@@ -260,9 +260,9 @@ services:
       - 11909:10909
       - 11911:10911
     volumes:
-      - $PWD/rocketmq/broker-a/1/data/logs:/home/rocketmq/logs
-      - $PWD/rocketmq/broker-a/1/data/store:/home/rocketmq/store
-      - $PWD/rocketmq/broker-a/1/conf/broker.conf:/etc/rocketmq/conf/broker.conf
+      - ./rocketmq/broker-a/1/data/logs:/home/rocketmq/logs
+      - ./rocketmq/broker-a/1/data/store:/home/rocketmq/store
+      - ./rocketmq/broker-a/1/conf/broker.conf:/etc/rocketmq/conf/broker.conf
     environment:
         NAMESRV_ADDR: "rmqnamesrv:9876"
         JAVA_OPTS: " -Duser.home=/opt"
@@ -292,7 +292,7 @@ services:
       MINIO_ACCESS_KEY: "linkflow"
       MINIO_SECRET_KEY: "linkflow"
     volumes:
-      - $PWD/minio/data:/data
+      - ./minio/data:/data
     command: server /data --console-address ":4730"
     restart: always
 
@@ -302,7 +302,7 @@ services:
     container_name: nacos1
     image: nacos/nacos-server:1.4.1
     volumes:
-      - $PWD/nacos/nacos1:/home/nacos/logs
+      - ./nacos/nacos1:/home/nacos/logs
     ports:
       - "8848:8848"
       - "9848:9848"
